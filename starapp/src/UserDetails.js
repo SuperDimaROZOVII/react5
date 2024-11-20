@@ -1,6 +1,7 @@
 import UserRepositories from "./UserRepositories.js";
 
 export default function UserDetails({ data }) {
+    console.log(data)  //undefined
     return (
         <div className="githubUser">
             <img src={data.avatar_url} alt={data.login} style={{ width: 200 }} />

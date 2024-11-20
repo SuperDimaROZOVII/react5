@@ -12,14 +12,8 @@ import SearchForm from "./SearchForm.js";
 import { faker } from '@faker-js/faker';
 import { FixedSizeList } from "react-window";
 import GithubUser from "./GithubUser.js";
-
-
-
-
-
-
-
-
+import {query, client} from "./GraphQLTest.js"
+import UserDetails from "./UserDetails.js";
 
 const bigList = [...Array(5000)].map(() => ({
     person: faker.person.firstName("female"),
@@ -32,14 +26,6 @@ const testArray = ["Vasya", "Petya", "Masha", "Ivan", "Sharik"]
 
 
 console.log(typeof bigList)
-// const tahoe_peaks = [
-//     { name: "Freel Peak", elevation: 10891 },
-//     { name: "Monument Peak", elevation: 10067 },
-//     { name: "Pyramid Peak", elevation: 9983 },
-//     { name: "Mt. Tallac", elevation: 9735 }
-// ];
-
-
 
 const Cat = memo(({ name, meow = f => f }) => {
     console.log(`rendering ${name}`);
@@ -48,13 +34,12 @@ const Cat = memo(({ name, meow = f => f }) => {
 
 const RenderCatOnce = memo(Cat, () => true);
 const AlwaysRenderCat = memo(Cat, () => false);
-//const PureCat = memo(Cat);
 const PureCat = memo(
     Cat,
     (prevProps, nextProps) => prevProps.name === nextProps.name
 );
 export default function App() {
-    const [login, setLogin] = useState("moonhighway");
+    const [login, setLogin] = useState("SuperDimaROZOVII");
     const [repo, setRepo] = useState("learning-react");
     const renderRow = ({ index, style }) => (
         <div style={{ ...style, ...{ display: "flex" }, ...{ border: "1px black dashed" } }}>
@@ -70,6 +55,17 @@ export default function App() {
     );
 
     const [cats, setCats] = useState(["Biscuit", "Jungle", "Outlaw"]);
+
+    const [userData, setUserData] = useState();
+    useEffect(() => {
+        client
+            .request(query, { login })
+            .then(({ user }) => user)
+            .then(setUserData)
+            .catch(console.error);
+    }, [client, query, login]);
+    if (!userData) return <p>loading...</p>;
+    console.log(userData)
     return (
         <div>
             <Checkbox />
@@ -85,25 +81,10 @@ export default function App() {
                 Add a Cat
             </button>
             <SearchForm
-                // array={bigList}
                 value={login}
                 onSearch={testArray}
             />
-            {/* <RepositoryReadme login={login} repo={"SuperDimaROZOVII.github.io"}/> */}
             <br />
-
-            {/* <List
-                renderEmpty={<p>This list is empty</p>}
-                data={tahoe_peaks}
-                renderItem={item => (
-                    <>
-                        {item.name} — {item.elevation.toLocaleString()}ft
-                    </>
-                )}
-            /> */}
-
-
-            {/* <List data={bigList} renderItem={renderItem} /> */}
 
             <FixedSizeList
                 height={window.innerHeight - 500}
@@ -114,7 +95,16 @@ export default function App() {
             >
                 {renderRow}
             </FixedSizeList>
-            <GithubUser login='SuperDimaROZOVII'/>
+            <GithubUser login='MoonTahoe' />
+            {/* SuperDimaROZOVII */}
+
+            {/* <SearchForm value={login} onSearch={setLogin} /> */}
+            <UserDetails data={userData} />
+            <p>{userData.repositories.totalCount} — repos</p>
+            {/* <List
+                data={userData.repositories.nodes}
+                renderItem={repo => <span>{repo.name}</span>}
+            /> */}
         </div>
     );
 }
